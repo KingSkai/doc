@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟实验室：探究气候如何影响瓜果甜度</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f9fc 0%, #e8f4fc 100%);
+            min-height: 100vh;
+        }
+        #container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e8f4fc;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        .control-panel {
+            background: linear-gradient(135deg, #e8f4fc 0%, #d4e9f9 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #c5e1f4;
+        }
+        .panel-title {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+        .slider-container {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        label {
+            display: inline-block;
+            width: 120px;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #e74c3c;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .value-display {
+            display: inline-block;
+            width: 100px;
+            text-align: center;
+            font-weight: bold;
+            color: #e74c3c;
+            font-size: 1.1em;
+            background: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .button-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        #start-btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        #reset-btn {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        #xinjiang-btn {
+            background: linear-gradient(135deg, #f39c12 0%, #d35400 100%);
+        }
+        #zhejiang-btn {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+        .data-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .data-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
+        }
+        .data-label {
+            font-size: 1.2em;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .data-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .data-unit {
+            font-size: 1em;
+            color: #6c757d;
+            margin-left: 5px;
+        }
+        .chart-container {
+            height: 500px;
+            margin-top: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-radius: 12px;
+            border-left: 5px solid #f39c12;
+        }
+        .explanation h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+        .explanation p {
+            color: #856404;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            .button-container {
+                grid-template-columns: 1fr;
+            }
+            .slider-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            label {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="header">
+            <h1>🌵 虚拟科学实验室：气候对瓜果甜度的影响 🍈</h1>
+            <div class="subtitle">探索水分、温差和时间如何共同塑造果实的甜蜜</div>
+        </div>
+
+        <div class="control-panel">
+            <div class="panel-title">实验参数控制</div>
+            <div class="slider-container">
+                <label for="water-slider">水分供应:</label>
+                <input type="range" id="water-slider" min="10" max="100" value="50">
+                <span id="water-value" class="value-display">50%</span>
+            </div>
+            <div class="slider-container">
+                <label for="temp-slider">昼夜温差:</label>
+                <input type="range" id="temp-slider" min="5" max="25" value="10">
+                <span id="temp-value" class="value-display">10°C</span>
+            </div>
+            <div class="slider-container">
+                <label for="days-slider">模拟天数:</label>
+                <input type="range" id="days-slider" min="10" max="50" value="30">
+                <span id="days-value" class="value-display">30 天</span>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button id="start-btn">🚀 开始模拟</button>
+            <button id="reset-btn">🔄 重置实验</button>
+            <button id="xinjiang-btn">🏜️ 新疆模式</button>
+            <button id="zhejiang-btn">🌊 浙江模式</button>
+        </div>
+
+        <div class="data-display">
+            <div class="data-item">
+                <div class="data-label">最终糖度</div>
+                <div class="data-value"><span id="final-sugar">0.0</span><span class="data-unit">°Bx</span></div>
+            </div>
+            <div class="data-item">
+                <div class="data-label">最终含水量</div>
+                <div class="data-value"><span id="final-water">0</span><span class="data-unit">%</span></div>
+            </div>
+            <div class="data-item">
+                <div class="data-label">生长效率</div>
+                <div class="data-value"><span id="efficiency">0.0</span><span class="data-unit">%</span></div>
+            </div>
+        </div>
+
+        <div id="chart" class="chart-container"></div>
+
+        <div class="explanation">
+            <h3>🔬 科学原理说明</h3>
+            <p>• <strong>水分供应</strong>：水分较少时，植物会产生更多糖分来提高细胞液浓度，防止水分流失（渗透调节），同时果实含水量降低，糖分相对浓缩。</p>
+            <p>• <strong>昼夜温差</strong>：白天温度高，光合作用强，制造大量糖分；夜晚温度低，呼吸作用弱，消耗糖分少，净积累糖分多。</p>
+            <p>• <strong>新疆瓜果更甜</strong>：干旱少雨（水分胁迫） + 昼夜温差大 → 高糖度积累 + 低含水量 → 特别香甜！</p>
+        </div>
+    </div>
+
+    <script>
+        // 初始化 ECharts 图表
+        const chartDom = document.getElementById('chart');
+        let myChart = echarts.init(chartDom);
+        let option;
+        let chartInitialized = false;
+
+        // 获取DOM元素
+        const waterSlider = document.getElementById('water-slider');
+        const waterValue = document.getElementById('water-value');
+        const tempSlider = document.getElementById('temp-slider');
+        const tempValue = document.getElementById('temp-value');
+        const daysSlider = document.getElementById('days-slider');
+        const daysValue = document.getElementById('days-value');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const xinjiangBtn = document.getElementById('xinjiang-btn');
+        const zhejiangBtn = document.getElementById('zhejiang-btn');
+        const finalSugar = document.getElementById('final-sugar');
+        const finalWater = document.getElementById('final-water');
+        const efficiency = document.getElementById('efficiency');
+
+        // 更新滑块显示的值
+        function updateWaterValue() { waterValue.textContent = waterSlider.value + '%'; }
+        function updateTempValue() { tempValue.textContent = tempSlider.value + '°C'; }
+        function updateDaysValue() { daysValue.textContent = daysSlider.value + ' 天'; }
+        
+        // 同时监听input和change事件以确保兼容性
+        waterSlider.addEventListener('input', updateWaterValue);
+        waterSlider.addEventListener('change', updateWaterValue);
+        tempSlider.addEventListener('input', updateTempValue);
+        tempSlider.addEventListener('change', updateTempValue);
+        daysSlider.addEventListener('input', updateDaysValue);
+        daysSlider.addEventListener('change', updateDaysValue);
+        
+        // 初始化显示值
+        updateWaterValue();
+        updateTempValue();
+        updateDaysValue();
+
+        // 科学模型参数与状态
+        let dayData = [];
+        let sugarData = [];
+        let waterContentData = [];
+        let isSimulating = false;
+        let simulationInterval;
+
+        // 初始化图表
+        function initChart() {
+            option = {
+                title: {
+                    text: '🍈 瓜果生长过程模拟',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 18,
+                        color: '#2c3e50'
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#6a7985'
+                        }
+                    }
+                },
+                legend: {
+                    data: ['糖度 (°Bx)', '含水量 (%)'],
+                    bottom: 'auto',  // 不固定在底部
+                    top: 'bottom',  // 固定在图表正上方（标题下方）
+                    textStyle: {
+                        fontSize: 14,
+                        padding: [5, 10]  // 为每个文本增加内边距
+                    },
+                    itemGap: 100,  // 大幅增加图例项之间的间距
+                    left: 'center',
+                    orient: 'horizontal',
+                    padding: 20,
+                    // 不使用HTML标签格式化，避免乱码问题
+                    formatter: function(name) {
+                        return name;
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '12%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    name: '模拟天数',
+                    nameLocation: 'middle',
+                    nameGap: 30,
+                    nameTextStyle: {
+                        fontSize: 14,
+                        fontWeight: 'bold'
+                    },
+                    axisLabel: {
+                        fontSize: 12
+                    }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '糖度 (°Bx)',
+                        position: 'left',
+                        axisLine: {
+                            show: true,
+                            lineStyle: { 
+                                color: '#e74c3c',
+                                width: 2
+                            }
+                        },
+                        axisLabel: {
+                            formatter: '{value}°Bx',
+                            fontSize: 12
+                        },
+                        min: 0,
+                        max: 25
+                    },
+                    {
+                        type: 'value',
+                        name: '含水量 (%)',
+                        position: 'right',
+                        axisLine: {
+                            show: true,
+                            lineStyle: { 
+                                color: '#3498db',
+                                width: 2
+                            }
+                        },
+                        axisLabel: {
+                            formatter: '{value}%',
+                            fontSize: 12
+                        },
+                        min: 60,
+                        max: 90
+                    }
+                ],
+                series: [
+                    {
+                        name: '糖度 (°Bx)',
+                        type: 'line',
+                        yAxisIndex: 0,
+                        data: [],
+                        lineStyle: { 
+                            color: '#e74c3c', 
+                            width: 4,
+                            shadowColor: 'rgba(231, 76, 60, 0.3)',
+                            shadowBlur: 10
+                        },
+                        itemStyle: { 
+                            color: '#e74c3c',
+                            borderWidth: 2
+                        },
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        animationDuration: 2000,
+                        animationEasing: 'cubicInOut'
+                    },
+                    {
+                        name: '含水量 (%)',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        data: [],
+                        lineStyle: { 
+                            color: '#3498db', 
+                            width: 4,
+                            shadowColor: 'rgba(52, 152, 219, 0.3)',
+                            shadowBlur: 10
+                        },
+                        itemStyle: { 
+                            color: '#3498db',
+                            borderWidth: 2
+                        },
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        animationDuration: 2000,
+                        animationEasing: 'cubicInOut'
+                    }
+                ]
+            };
+            myChart.setOption(option);
+            chartInitialized = true;
+        }
+
+        // 核心算法函数 - 模拟现实生长过程
+        function simulateGrowth() {
+            console.log('开始模拟按钮被点击');
+            if (isSimulating) return;
+            isSimulating = true;
+            startBtn.disabled = true;
+            startBtn.textContent = '模拟中...';
+
+            // 重置数据
+            dayData = [];
+            sugarData = [];
+            waterContentData = [];
+
+            // 获取用户输入的参数
+            const waterSupply = parseInt(waterSlider.value);
+            const tempDifference = parseInt(tempSlider.value);
+            const totalDays = parseInt(daysSlider.value);
+            console.log('参数:', waterSupply, tempDifference, totalDays);
+
+            // 初始化图表
+            if (!chartInitialized) {
+                initChart();
+            }
+
+            // 科学模型参数
+            const baseSugar = 5.0;
+            const baseWaterContent = 65.0;
+            const waterEffectOnContent = 0.25;
+            const tempEffectOnSugar = 0.03;
+            const dailyGrowthRate = 0.2;
+
+            // 计算模型因子
+            const waterStressFactor = (100 - waterSupply) / 100;
+            const tempGainFactor = 1 + (tempDifference * tempEffectOnSugar);
+
+            // 初始状态
+            let currentSugar = baseSugar;
+            const currentWaterContent = baseWaterContent + (waterSupply * waterEffectOnContent);
+
+            // 模拟生长过程
+            for (let day = 0; day <= totalDays; day++) {
+                if (day > 0) {
+                    // 每日糖度变化 = 基础生长 × 温差增益 + 水分胁迫效应
+                    const dailySugarGain = (dailyGrowthRate * tempGainFactor) + 
+                                         (currentSugar * waterStressFactor * 0.05);
+                    currentSugar += dailySugarGain;
+                    
+                    // 糖度上限限制
+                    currentSugar = Math.min(currentSugar, 24);
+                }
+
+                // 记录数据
+                dayData.push(day);
+                sugarData.push(parseFloat(currentSugar.toFixed(2)));
+                waterContentData.push(parseFloat(currentWaterContent.toFixed(1)));
+            }
+
+            // 更新最终结果显示
+            const finalSugarValue = sugarData[sugarData.length - 1];
+            const finalWaterValue = waterContentData[waterContentData.length - 1];
+            const growthEfficiency = ((finalSugarValue - 5) / 19 * 100).toFixed(1);
+            
+            // 先设置初始值为0，然后用动画显示结果
+            finalSugar.textContent = '0.0';
+            finalWater.textContent = '0';
+            efficiency.textContent = '0.0';
+
+            // 动画效果：逐步绘制曲线
+            let currentFrame = 0;
+            const totalFrames = dayData.length;
+            const animationSugarData = [];
+            const animationWaterData = [];
+
+            clearInterval(simulationInterval);
+            simulationInterval = setInterval(() => {
+                if (currentFrame < totalFrames) {
+                    animationSugarData.push(sugarData[currentFrame]);
+                    animationWaterData.push(waterContentData[currentFrame]);
+
+                    option.xAxis.data = dayData.slice(0, currentFrame + 1);
+                    option.series[0].data = animationSugarData;
+                    option.series[1].data = animationWaterData;
+                    myChart.setOption(option);
+
+                    // 更新数据显示
+                    if (currentFrame === totalFrames - 1) {
+                        // 添加数字变化动画
+                        animateNumber(finalSugar, 0, finalSugarValue, 1000);
+                        animateNumber(finalWater, 0, finalWaterValue, 1000);
+                        animateNumber(efficiency, 0, parseFloat(growthEfficiency), 1000);
+                    }
+
+                    currentFrame++;
+                } else {
+                    clearInterval(simulationInterval);
+                    isSimulating = false;
+                    startBtn.disabled = false;
+                    startBtn.textContent = '🚀 开始模拟';
+                }
+            }, 50);
+        }
+
+        // 数字变化动画函数
+        function animateNumber(element, start, end, duration) {
+            const startTime = performance.now();
+            
+            function updateNumber(currentTime) {
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / duration, 1);
+                
+                // 使用缓动函数让动画更自然
+                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                const currentValue = start + (end - start) * easeProgress;
+                
+                // 根据元素ID决定显示格式
+                if (element.id === 'final-water' || element.id === 'efficiency') {
+                    element.textContent = currentValue.toFixed(1);
+                } else {
+                    element.textContent = currentValue.toFixed(1);
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateNumber);
+                }
+            }
+            
+            requestAnimationFrame(updateNumber);
+        }
+
+        function resetChart() {
+            clearInterval(simulationInterval);
+            isSimulating = false;
+            startBtn.disabled = false;
+            
+            dayData = [];
+            sugarData = [];
+            waterContentData = [];
+            
+            finalSugar.textContent = '0.0';
+            finalWater.textContent = '0';
+            efficiency.textContent = '0.0';
+            
+            chartInitialized = false;
+            myChart.dispose();
+            myChart = echarts.init(chartDom);
+        }
+
+        function setXinjiangMode() {
+            waterSlider.value = 30;
+            tempSlider.value = 15;
+            waterValue.textContent = '30%';
+            tempValue.textContent = '15°C';
+        }
+
+        function setZhejiangMode() {
+            waterSlider.value = 80;
+            tempSlider.value = 8;
+            waterValue.textContent = '80%';
+            tempValue.textContent = '8°C';
+        }
+
+        // 绑定按钮事件
+        startBtn.addEventListener('click', simulateGrowth);
+        resetBtn.addEventListener('click', resetChart);
+        xinjiangBtn.addEventListener('click', setXinjiangMode);
+        zhejiangBtn.addEventListener('click', setZhejiangMode);
+
+        // 窗口自适应
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+
+        // 初始化页面
+        initChart();
+    </script>
+</body>
+</html>
